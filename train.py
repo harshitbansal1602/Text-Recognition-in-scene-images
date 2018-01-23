@@ -1,5 +1,4 @@
 import scipy.io as sio
-import tensorflow as tf
 import numpy as np
 import keras
 from keras.models import Model
@@ -58,21 +57,21 @@ tags = np.repeat(tags,2,axis=0)
 images,tags = sklearn.utils.shuffle(images,tags)
 
 ##Hyperparameters
-kernel_conv1 = [8,8]
-filter_conv1 = 8
-kernel_conv2 = [6,6]
-filter_conv2 = 8
+kernel_conv1 = [5,5]
+filter_conv1 = 12
+kernel_conv2 = [5,5]
+filter_conv2 = 12
 kernel_conv3 = [3,3]
-filter_conv3 = 16
+filter_conv3 = 32
 kernel_conv4 = [3,3]
 filter_conv4 = 32
-dense_size1 = 300
-dense_size2 = 200
+dense_size1 = 256
+dense_size2 = 124
 
 num_classes = 62 #make this 64 by adding random data like false image /bad images
-batch_size = 1
+batch_size = 128
 epochs = 500
-reg_str = 0.001
+reg_str = 0.002
 adam = optimizers.Adam(lr=0.001,decay = 0.001)
 x_image = Input(shape=[32,32])
 x = Reshape([32,32,1])(x_image)

@@ -79,9 +79,8 @@ def connect_boxes(images):
                     break
 
         words = np.array(words)
-        words = processing.remove_duplicate(words[words[:,0].argsort()])
-        # words = processing.remove_duplicate(recs)
-        # print recs
+        words =words[words[:,0].argsort()]
+        
         images = np.delete(images,delete,axis = 0)
         letters = [chars[i] for i in words[:,-1]]
 
