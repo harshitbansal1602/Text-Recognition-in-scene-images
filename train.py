@@ -18,16 +18,6 @@ def normalize(img):
     return (img-np.mean(img))/std
 
 
-def zca(X):
-    sigma = np.cov(X, rowvar=True)  # Correlation matrix
-    # Singular Value Decomposition. X = U * np.diag(S) * V
-    U, S, V = np.linalg.svd(sigma)
-    epsilon = 0.1  # Whitening constant: prevents division by zero
-    # ZCA Whitening matrix: U * Lambda * U'
-    ZCAMatrix = np.dot(U, np.dot(np.diag(1.0/np.sqrt(S + epsilon)), U.T))
-    return np.dot(ZCAMatrix, X)  # Data whitening
-
-
 def show_images(images, cols = 1):
     n_images = len(images)
     fig = plt.figure()
@@ -47,10 +37,17 @@ images = mat_contents['e'][0,0][0]
 images = np.transpose(images, [2,0,1])/255.0
 
 tags = mat_contents['e'][0,0][1][0,:] - 1
-images = np.asarray([normalize(image) for image in images])
 images = np.repeat(images,2,axis=0)
 for i in range(1,images.shape[0],2):
-    images[i] = -1*images[i]
+    images[i] = (255 - images[i])
+
+
+images = np.asarray([normalize(image) for image in images])
+
+cv2.imshow('img1',images[0])
+cv2.waitKey(0)
+cv2.imshow('img2',images[1])
+cv2.waitKey(0)
 
 tags = keras.utils.to_categorical(tags, num_classes=62)
 tags = np.repeat(tags,2,axis=0)
