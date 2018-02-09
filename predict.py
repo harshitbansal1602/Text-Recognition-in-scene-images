@@ -9,69 +9,45 @@ def get_image(box,img):
     image = img[y:y+h, x:x+w]
     avg_color = [0,0,0]
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
     image = processing.normalize(image)
-    k = max(w,h)
-    
-    new_dim = k + (32-k%32) if k%32 else k 
-    delta_h = new_dim - h
-    delta_w = new_dim - w
-
-    top = delta_h-(delta_h//2)
-    left = delta_w-(delta_w//2)
-    right = delta_w//2
-    bottom = delta_h//2
-
-    # temp = np.ones((h+delta_h,w+delta_w))
-    # temp[top:top+h, left:left+w] = image
-    # image = temp
-    image = cv2.copyMakeBorder(image,top,bottom,left,right,cv2.BORDER_CONSTANT,value = avg_color)
-
     image = cv2.resize(image, (32,32), interpolation=cv2.INTER_AREA)
-    image = processing.zca_whitening(image)
     return image
 
 def predict(images,img,model):
-    
+    threshold = .20
     predict_output = []
     temp = []
     boxes = []
     for rec in images:
         x,y,w,h = rec
-        if w>3*h:
-            for n in range(x,x+w-h,1):        
-                rec2 = [n,y,h,h]
-                image = get_image(rec2,img)
-                box = rec2
-                boxes.append(box)
-                temp.append(image)
-        else:
-            image = get_image(rec,img)
-            box = rec
-            boxes.append(box)
-            temp.append(image)
-    for image in temp: 
-        cv2.imshow('img',image)
-        cv2.waitKey(0)
+        image = get_image(rec,img)
+        box = rec
+        boxes.append(box)
+        temp.append(image)
 
     probs = model.predict(np.asarray(temp))
     
     for i,prob in enumerate(probs):
-        if np.max(prob) > .00:
+
+        if np.max(prob) > threshold:
             rec = boxes[i] #getting boundary box
             predict_output.append([rec,np.argmax(prob)])
     return predict_output
 
 
 def connect_boxes(images):
+    "Connecting all the boxes which overlaps over each other"
     string = []
     
-    lower_case_list = list(sr.ascii_lowercase)
-    upper_case_list = list(sr.ascii_uppercase)
-    digits = range(0,10)
-    chars = upper_case_list + lower_case_list + digits 
+    #making list of chars
+    lower_case_list = np.array(list(sr.ascii_lowercase))
+    upper_case_list = np.array(list(sr.ascii_uppercase))
+    digits = np.arange(0,10)
+    chars = np.concatenate((upper_case_list,lower_case_list, digits.astype(str)))
 
     while(images.size):
-        pred =images[0]
+        pred = images[0]
         x1,y1,w1,h1 = pred[0]
         words = [[x1,y1,w1,h1,pred[1]]]
         images = np.delete(images,0,axis = 0)

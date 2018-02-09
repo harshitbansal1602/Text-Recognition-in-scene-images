@@ -1,41 +1,19 @@
 import numpy as np
 import cv2
 
-def zca_whitening(X):
-    """
-    Function to compute ZCA whitening matrix (aka Mahalanobis whitening).
-    INPUT:  X: [M x N] matrix.
-        Rows: Variables
-        Columns: Observations
-    OUTPUT: ZCAMatrix: [M x M] matrix
-    """
-    # Covariance matrix [column-wise variables]: Sigma = (X-mu)' * (X-mu) / N
-    sigma = np.cov(X, rowvar=True) # [M x M]
-    # Singular Value Decomposition. X = U * np.diag(S) * V
-    U,S,V = np.linalg.svd(sigma)
-        # U: [M x M] eigenvectors of sigma.
-        # S: [M x 1] eigenvalues of sigma.
-        # V: [M x M] transpose of U
-    # Whitening constant: prevents division by zero
-    epsilon = 1
-    # ZCA Whitening matrix: U * Lambda * U'
-    ZCAMatrix = np.dot(U, np.dot(np.diag(1.0/np.sqrt(S + epsilon)), U.T)) # [M x M]
-    xZCAMatrix = np.dot(ZCAMatrix, X)
-    return xZCAMatrix
 
 def create_mser_regions(img):
     
     #setting variation
-    mser = cv2.MSER_create(_delta = 4, _min_area = 64, _max_area = 64000, _max_variation = 0.15, _min_diversity = 0.2, _max_evolution = 200, _area_threshold = 1.01, _min_margin = .003, _edge_blur_size = 5)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    regions, _ = mser.detectRegions(gray)
+    mser = cv2.MSER_create(_delta = 0, _min_area = 64, _max_area = 640000, _max_variation = 0.4, _min_diversity = 0.05, _max_evolution = 5000, _area_threshold = 1.01, _min_margin = .03, _edge_blur_size = 5)
+    regions, _ = mser.detectRegions(img)
     hulls = []
     for p in regions:
         x,y,w,h = cv2.boundingRect(p.reshape(-1, 1, 2))
         hulls.append([x,y,w,h])
 
-    crop_images = np.array(hulls)
-    return crop_images
+    patch_images = np.array(hulls)
+    return patch_images
 
 
 def remove_duplicate(images):
@@ -47,6 +25,7 @@ def remove_duplicate(images):
         x,y,w,h = rec[:4]
         rec_a = rec
         
+
         for i,rec2 in enumerate(image_stack): 
             x2,y2,w2,h2 = rec2[:4]
 
@@ -69,8 +48,8 @@ def normalize(img):
     return (img-np.mean(img))/std
 
 def clean_images(images):
+    
     good_images = []
-
     for rec in images:
         good_append = True
         
@@ -83,7 +62,7 @@ def clean_images(images):
             good_images.append(rec)
     return good_images
 
-def resize_image(images,scale): # Image resizing is performed here
+def resize_image(images,scale):
     image_stack = []
     for rec in images:
         x,y,w,h = rec[0]

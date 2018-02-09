@@ -16,7 +16,7 @@ def show_images(images, cols = 1):
     plt.tight_layout() 
     plt.show()
 
-model = load_model('model.h5')
+model = load_model('model/model.h5')
 weights = []
 name = []
 for layer in model.layers:
