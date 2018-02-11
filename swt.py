@@ -11,19 +11,19 @@ import scipy.sparse, scipy.spatial
 
 t0 = time.clock()
 
-diagnostics = False
+diagnostics = True
 
 
 class SWTScrubber(object):
     @classmethod
-    def scrub(cls, filepath):
+    def scrub(cls, filepath,light_on_dark)):
         """
         Apply Stroke-Width Transform to image.
         :param filepath: relative or absolute filepath to source image
         :return: numpy array representing result of transform
         """
         canny, sobelx, sobely, theta,size = cls._create_derivative(filepath)
-        swt = cls._swt(theta, canny, sobelx, sobely)
+        swt = cls._swt(theta, canny, sobelx, sobely,light_on_dark)
         contours = cls._connect_components(swt)
         boxes = cls._find_letters(swt, contours,size)
         
@@ -50,7 +50,7 @@ class SWTScrubber(object):
         return (edges, sobelx64f, sobely64f, theta,img.shape)
 
     @classmethod
-    def _swt(self, theta, edges, sobelx64f, sobely64f):
+    def _swt(self, theta, edges, sobelx64f, sobely64f,light_on_dark):
         # create empty image, initialized to infinity
         swt = np.empty(theta.shape)
         swt[:] = np.Infinity
@@ -61,9 +61,11 @@ class SWTScrubber(object):
         # now iterate over pixels in image, checking Canny to see if we're on an edge.
         # if we are, follow a normal a ray to either the next edge or image border
         # edgesSparse = scipy.sparse.coo_matrix(edges)
-        step_x_g = sobelx64f
-        step_y_g = sobely64f
-
+        step_x_g = -1*sobelx64f
+        step_y_g = -1*sobely64f
+        if light_on_dark:
+            step_x_g = -1 * step_x_g
+            step_y_g = -1 * step_y_g
         mag_g = np.sqrt( step_x_g * step_x_g + step_y_g * step_y_g)
         mag_g[mag_g == 0] = 1.0
         grad_x_g = step_x_g / mag_g
@@ -97,7 +99,7 @@ class SWTScrubber(object):
                                     theta_point = theta[y, x]
                                     alpha = theta[cur_y, cur_x]
 
-                                    if math.acos(grad_x * -grad_x_g[cur_y, cur_x] + grad_y * -grad_y_g[cur_y, cur_x]) < np.pi/2.0:
+                                    if math.acos(grad_x * -grad_x_g[cur_y, cur_x] + grad_y * -grad_y_g[cur_y, cur_x]) < np.pi/6.0:
                                         thickness = math.sqrt( (cur_x - x) * (cur_x - x) + (cur_y - y) * (cur_y - y) )
                                         for (rp_x, rp_y) in ray:
                                             swt[rp_y, rp_x] = min(thickness, swt[rp_y, rp_x])
@@ -261,12 +263,9 @@ class SWTScrubber(object):
                 continue
             
             patch = swt[y:y+height, x:x+width]
-            if patch[np.isinf(patch)].size > .6*patch.size :
+            # if the box is too scarse for text
+            if patch[np.isinf(patch)].size > .7*patch.size :
                 continue 
-            
-            if diagnostics:
-                print " written to image."
-                cv2.imwrite('diagnostics/layer'+ str(label) +'.jpg', layer * 255)
 
             boxes.append([x,y,width,height])
 

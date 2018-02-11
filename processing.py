@@ -15,7 +15,6 @@ def create_mser_regions(img):
     patch_images = np.array(hulls)
     return patch_images
 
-
 def remove_duplicate(images):
     image_stack = []
 

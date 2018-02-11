@@ -13,7 +13,21 @@ Here I have used two most popular methods to extract text from images namely 'St
 
 #### Stroke Width Transform(SWT)
 For SWT following [paper](http://www.math.tau.ac.il/~turkel/imagepapers/text_detection.pdf) is refered, also for detailed explanation on swt.py please refer 
-[here](https://github.com/mypetyak/StrokeWidthTransform).
+[here](https://github.com/mypetyak/StrokeWidthTransform). Note: Currently only one type of text can be recognized at a time by this method i.e. either light text on dark background or vice versa.
+
+```
+To detect light text on dark background use the flag 'light_on_dark = True'
+
+In recogize.py:
+....
+else:
+	#Getting regions of image with similar stroke widths
+	light_on_dark = False #change here.
+	swt_scrubber = swt.SWTScrubber()
+	text_boxes = swt_scrubber.scrub(image_path,light_on_dark)
+....
+
+```
 
 #### Maximally Stable Extremal Regions (MSER)
 For detection of mser's in-built function in opencv is used.
@@ -21,7 +35,7 @@ For detection of mser's in-built function in opencv is used.
 ```
 To switch between the methods use the flag 'use_mser = True'(Default: False) in recognize.py:
 
-##recognize.py
+In recognize.py:
 ....
 img = cv2.imread(image_path)
 use_mser = False # False: To use SWT, True: To use MSER
@@ -47,7 +61,7 @@ This project requires **Python** and the following Python libraries installed:
 #### Training model
 
 A pre-trained model is included in the /model directory. To train your model, you can use the train.py as a template.
-Note: Input shape is set to (32 X 32 X 1) to change it same changes must be made in the 'get_image' function in predict.py:  
+Note: Input shape is set to (32 X 32 X 1) to change it same changes must be made in the 'get_image' function in predict.py: 
 
 ```
 def get_image(box,img):

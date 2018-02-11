@@ -74,6 +74,7 @@ def connect_boxes(images):
                 j += 1
 
         words = np.array(words)
+        #Sorting with x to make correct word
         words = words[words[:,0].argsort()]
 
         letters = [chars[i] for i in words[:,-1]]
