@@ -66,12 +66,10 @@ Note: Input shape is set to (32 X 32 X 1) to change it same changes must be made
 ```
 def get_image(box,img):
     ....
- 
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) #To change number of input channels to 3(Default: 1) comment-out this line.
-    image = processing.normalize(image)
-    image = cv2.resize(image, (x,y), interpolation=cv2.INTER_AREA) #To change input shape to (x,y)
-    return image
-
+    #To change number of input channels to 3(Default: 1) comment-out this section.
+    if image.shape[-1] > 1:
+	image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    ....
 ```
 #### Recognize Text
 

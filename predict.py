@@ -8,7 +8,9 @@ def get_image(box,img):
     x,y,w,h = box
     image = img[y:y+h, x:x+w]
     avg_color = [0,0,0]
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    if image.shape[-1] > 1:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     image = processing.normalize(image)
     image = cv2.resize(image, (32,32), interpolation=cv2.INTER_AREA)
