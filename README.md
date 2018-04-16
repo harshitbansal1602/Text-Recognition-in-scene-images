@@ -1,6 +1,6 @@
 # Text-Recognition-in-scene-images
 [p]: #project
-**[METHODOLOGY][mt] | [INSTALL][i] | [USAGE][u]| [DATA][d]**
+**[METHODOLOGY][mt] | [INSTALL][i] | [USAGE][u] | [DATA][d]**
 
 Text recognition in scene images using Stroke Width Transform as a text extractor method and a small deep learning model for classification.
 
@@ -35,7 +35,7 @@ For detection of mser's in-built function in opencv is used.
 ```
 To switch between the methods use the flag 'use_mser = True'(Default: False) in recognize.py:
 
-In recognize.py:
+In analysis.py:
 ....
 img = cv2.imread(image_path)
 use_mser = False # False: To use SWT, True: To use MSER
