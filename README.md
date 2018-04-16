@@ -73,7 +73,7 @@ def get_image(box,img):
 ```
 #### Recognize Text
 
-Once the model is trained, you can start recognizing text in natural images. Just give path to the trained model and image path in recognize.py:
+Once the model is trained, you can start recognizing text in natural images. Just give path to the trained model and image path in analysis.py:
 ```
 ....
 
